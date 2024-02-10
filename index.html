@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Lab 1</title>
+        <style>
+            body{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh; /* Ensure the body covers the entire viewport height */
+                margin: 0; /* Remove default margin */
+
+            }
+            canvas {
+                border: 2px solid #000;
+                display: block;
+                margin: 20px auto;
+            }
+            .mode {
+            margin: 10px;
+            margin-top: 20px;
+            }
+
+            label{
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            select {
+                padding: 4px;
+                font-size: 14px;
+                border-radius: 3px;
+                background-color: #000;
+                color:azure;
+                text-align: center;
+            }
+
+            .header h3 {
+                display: inline;
+                margin: 0; 
+                font-weight: bold;
+            }
+            #reaction{
+                padding-left: 5px;
+                font-weight: lighter;
+            }
+            .button-container {
+                text-align: center;
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            .button-container button {
+                display: inline-block;
+                margin: 5px; 
+                border-radius: 5px;
+                padding: 10px;
+                background-color: #000;
+                color: azure;
+            }
+            .game-settings div{
+                display: inline-block;
+            }
+    
+        </style>
+    </head>
+
+    <body>
+        
+            <div class="header">
+                <h2>Web Audio Keyboard</h2>
+              
+            </div>
+            <div class="header">
+                <h3>Score: </h3><h3 id="gameScore">0</h3> <h3 id="reaction"></h3>
+            </div>
+            
+            <div class="game-settings">
+
+                <div>
+                    <label for="mode">Select Song:</label>
+                    <select name="song" id="song">
+                    <option value="0">Mary Had a Little Lamb</option>
+                    <option value="1">Happy Birthday!</option>
+                    
+                    </select>
+                </div>
+                <div class="mode">
+                    <label for="mode">Game Mode:</label>
+                    <select name="mode" id="mode">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    </select>
+                </div>
+
+            </div>
+            
+            
+            <div class="button-container">
+                <button id="startStopButton">Start Game</button>
+                 <button id="restartButton">Restart Game</button>
+            </div>
+
+            
+            
+   
+            <canvas id="gameCanvas" width="800" height="400"></canvas>
+            <script src="game.js"></script>
+            <div>
+                <form id="wave_selection">
+                    <input type="radio" id="sine" value="sine" name="wave" checked="checked">
+                    <label for="sine">sine</label>
+                    <input type="radio" id="sawtooth" name="wave" value="sawtooth">
+                    <label for="sawtooth">sawtooth</label>
+                </form>
+            </div>
+
+        
+    </body>
+
+    <script src="main.js"></script>
+
+</html>
