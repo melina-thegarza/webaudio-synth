@@ -2,7 +2,7 @@
 
 <html>
     <head>
-        <title>Lab 1</title>
+        <title>Lab 2</title>
         <style>
             body{
                 display: flex;
@@ -63,6 +63,7 @@
             .game-settings div{
                 display: inline-block;
             }
+            
     
         </style>
     </head>
@@ -70,9 +71,10 @@
     <body>
         
             <div class="header">
-                <h2>Web Audio Keyboard</h2>
+                <h2>Web Audio Synth</h2>
               
             </div>
+
             <div class="header">
                 <h3>Score: </h3><h3 id="gameScore">0</h3> <h3 id="reaction"></h3>
             </div>
@@ -118,7 +120,18 @@
                 </form>
             </div>
 
-        
+            <div class="synth-control">
+                <h2 style="text-align: center;">Synth Controls</h2>
+                <div>
+                    <label for="synthesis-type">Synthesis Type:</label>
+                    <select name="synthesis-type" id="synthesis-type">
+                        <option value="0">Additive Synthesis</option>
+                        <option value="1">AM Synthesis</option>
+                        <option value="2">FM Synthesis</option>
+                    </select>
+                </div>
+                
+            </div>
     </body>
 
     <script src="main.js"></script>

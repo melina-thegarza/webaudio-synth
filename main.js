@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", function(event){
             }
         });
 
+       
+
         const audioCtx = new(window.AudioContext || window.webkitAudioContext());
 
         //map from keys to frequencies
@@ -50,6 +52,16 @@ document.addEventListener("DOMContentLoaded", function(event){
         //will need a new gain node for each node to control the adsr of that note
         gainNodes = {}
 
+         //default additive synthesis
+         var synthesisType="0";
+         //detect change for synthesis type
+         document.getElementById('synthesis-type').addEventListener('change',changeSynthesis);
+        function changeSynthesis(){
+            //update the synthesis type
+            synthesisType = document.getElementById('synthesis-type').value;
+            
+        }
+
         function keyDown(event){
             const key = (event.detail || event.which).toString();
             //if key is mapped & there isn't a current active oscillator for the key
@@ -76,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function(event){
         //start the sound, start an oscillator, set the desired properties, connect the new oscillator
         function playNote(key){
             //create oscillator
-            const osc = audioCtx.createOscillator();
+            var osc = audioCtx.createOscillator();
             osc.frequency.setValueAtTime(keyboardFrequencyMap[key],audioCtx.currentTime);
             osc.type = waveType;
 
@@ -94,11 +106,11 @@ document.addEventListener("DOMContentLoaded", function(event){
             //attack, polyphonic mode
             let numActiveOscillators = Object.keys(activeOscillators).length;
             Object.keys(gainNodes).forEach(function(key){
-                gainNodes[key].gain.setTargetAtTime(0.75/numActiveOscillators, audioCtx.currentTime, 0.2);
+                gainNodes[key].gain.setTargetAtTime(0.25/numActiveOscillators, audioCtx.currentTime, 0.2);
             });
 
             //decay + sustain
-             gainNode.gain.setTargetAtTime(0.55/numActiveOscillators, audioCtx.currentTime+0.2, 0.2);
+             gainNode.gain.setTargetAtTime(0.15/numActiveOscillators, audioCtx.currentTime+0.2, 0.2);
 
           
         
