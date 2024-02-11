@@ -224,7 +224,6 @@ document.getElementById('startStopButton').addEventListener('click', toggleAnima
 // Add keydown event listener, detect if we played the correct note
 document.addEventListener('keydown', function(event) {
     //correct note played
-    console.log(songOption)
     if (event.key === song[songOption][songIndex].toLowerCase() && isAnimating) {
 
          //add to game score

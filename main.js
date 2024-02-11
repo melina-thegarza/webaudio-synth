@@ -75,36 +75,51 @@ document.addEventListener("DOMContentLoaded", function(event){
             //if key is mapped && is active
             if(keyboardFrequencyMap[key]&& activeOscillators[key]){
                 //release
-                gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
-                gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01)
-
-                // wait 70 milliseconds, then delete oscillator and gainNode
-                for (let osc of activeOscillators[key]) {
-                        osc.stop(audioCtx.currentTime + 0.07);
+            
+                if(synthesisType==0){
+                    gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
+                    gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01);
+                }
+                else if(synthesisType==1){
+                     for(let node of gainNodes[key]){
+                    node.gain.cancelScheduledValues(audioCtx.currentTime);
+                    node.gain.setTargetAtTime(0,audioCtx.currentTime,0.01)
+                }
+                    
                 }
                 
-                delete activeOscillators[key];
-                delete gainNodes[key];
+
+                // wait 20 milliseconds, then delete oscillator and gainNode
+                setTimeout(() => { 
+                    for (let osc of activeOscillators[key]) {
+                        osc.stop(audioCtx.currentTime + 0.02);
+                    }
+                    
+                    delete activeOscillators[key];
+                    delete gainNodes[key];
+                }, 70);
+               
                 
             }
         }
 
         //start the sound, start an oscillator, set the desired properties, connect the new oscillator
         function playNote(key){
-            //create oscillator
-            var osc_main = audioCtx.createOscillator();
-            osc_main.frequency.setValueAtTime(keyboardFrequencyMap[key],audioCtx.currentTime);
-            osc_main.type = waveType;
-            activeOscillators[key] = [osc_main];
+            //Additive Synthesis
+            if (synthesisType==0){
+                //create main osc
+                var osc_main = audioCtx.createOscillator();
+                osc_main.frequency.setValueAtTime(keyboardFrequencyMap[key],audioCtx.currentTime);
+                osc_main.type = waveType;
+                activeOscillators[key] = [osc_main];
 
-            //create gain node(controls volume, ADSR envelop)
-            var gainNode = audioCtx.createGain();
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            //add gainNode to dictionary
-            gainNodes[key] = gainNode;
+                //create gain node(controls volume, ADSR envelop)
+                var gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                //add gainNode to dictionary
+                gainNodes[key] = gainNode;
 
-             //if additive synthesis, create 3 partials
-             if (synthesisType==0){
+                //create 3 partials
                 for(var i=0;i<3;i++)
                 {
                     let osc = audioCtx.createOscillator();
@@ -113,39 +128,56 @@ document.addEventListener("DOMContentLoaded", function(event){
                     osc.connect(gainNode)
                     activeOscillators[key].push(osc);
                 }
-             }
-            
-            osc_main.connect(gainNode)
-            gainNode.connect(audioCtx.destination);
-           
 
-            //start the rest of the oscillators, additive synthesis
-            if (synthesisType==0){
+                //connect to output
+                osc_main.connect(gainNode)
+                gainNode.connect(audioCtx.destination);
+
+                //start the oscillators
                 for (let osc of activeOscillators[key]) {
                     osc.start();
                 }
-            }
-            else{
-                osc_main.start();
-            }
-         
-            //normalize the gain to ensure it doesn't exceed our threshold
-            //attack, polyphonic mode
-            if (synthesisType!=0){
-                var numActiveOscillators = Object.keys(activeOscillators).length;
-            }
-            else{
+                
+                //normalize the gain to ensure it doesn't exceed our threshold
+                 //attack, polyphonic mode
+
                 var numActiveOscillators = Object.keys(activeOscillators).length * 4;
+                Object.keys(gainNodes).forEach(function(key){
+                    gainNodes[key].gain.setTargetAtTime(0.25/numActiveOscillators, audioCtx.currentTime, 0.2);
+                });
+    
+                //decay + sustain
+                 gainNode.gain.setTargetAtTime(0.15/numActiveOscillators, audioCtx.currentTime+0.2, 0.2);
+
             }
-           
 
-            Object.keys(gainNodes).forEach(function(key){
-                gainNodes[key].gain.setTargetAtTime(0.25/numActiveOscillators, audioCtx.currentTime, 0.2);
-            });
 
-            //decay + sustain
-             gainNode.gain.setTargetAtTime(0.15/numActiveOscillators, audioCtx.currentTime+0.2, 0.2);
+            //AM Synthesis
+            else if(synthesisType==1){
 
+                var carrier = audioCtx.createOscillator();
+                var modulatorFreq = audioCtx.createOscillator();
+                carrier.type = waveType;
+                modulatorFreq.type = waveType;
+                modulatorFreq.frequency.value = 100;
+                carrier.frequency.value = keyboardFrequencyMap[key];
+            
+                var modulated = audioCtx.createGain();
+                var depth = audioCtx.createGain();
+                depth.gain.value = 0.2 
+                modulated.gain.value = .5 - depth.gain.value; 
+            
+                modulatorFreq.connect(depth).connect(modulated.gain); //.connect is additive, so with [-0.5,0.5] and 0.5, the modulated signal now has output gain at [0,1]
+                carrier.connect(modulated)
+                modulated.connect(audioCtx.destination);
+                
+                carrier.start();
+                modulatorFreq.start();
+
+                gainNodes[key] = [modulated,depth]
+                activeOscillators[key] = [carrier,modulatorFreq]
+
+            }
           
         
 
