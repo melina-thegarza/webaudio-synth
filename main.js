@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function(event){
             if(keyboardFrequencyMap[key]&& activeOscillators[key]){
                 //release
             
-                if(synthesisType==0){
+                if(synthesisType==0 || synthesisType==2){
                     gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
                     gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01);
                 }
@@ -88,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function(event){
                     
                 }
                 
-
                 // wait 20 milliseconds, then delete oscillator and gainNode
                 setTimeout(() => { 
                     for (let osc of activeOscillators[key]) {
@@ -105,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function(event){
 
         //start the sound, start an oscillator, set the desired properties, connect the new oscillator
         function playNote(key){
+
             //Additive Synthesis
             if (synthesisType==0){
                 //create main osc
@@ -164,19 +164,46 @@ document.addEventListener("DOMContentLoaded", function(event){
                 var modulated = audioCtx.createGain();
                 var depth = audioCtx.createGain();
 
-                //add them to their respectice dictionaries
+                //add them to their respective dictionaries
                 gainNodes[key] = [modulated,depth]
                 activeOscillators[key] = [carrier,modulatorFreq]
             
-               
+               //set the gain
                 var numActiveOscillators = Object.keys(activeOscillators).length * 2;
                 depth.gain.value = 0.2/numActiveOscillators 
                 modulated.gain.value = 0.5/numActiveOscillators - depth.gain.value; 
             
+                //connect gain nodes and oscs
                 modulatorFreq.connect(depth).connect(modulated.gain); //.connect is additive, so with [-0.5,0.5] and 0.5, the modulated signal now has output gain at [0,1]
                 carrier.connect(modulated)
                 modulated.connect(audioCtx.destination);
                 
+                carrier.start();
+                modulatorFreq.start();
+                
+
+            }
+            //FM synthesis
+            else if(synthesisType==2){
+
+                var carrier = audioCtx.createOscillator();
+                modulatorFreq = audioCtx.createOscillator();
+            
+                modulationIndex = audioCtx.createGain();
+                modulationIndex.gain.value = 100;
+                modulatorFreq.frequency.value = 100;
+                carrier.frequency.value = keyboardFrequencyMap[key];
+
+
+                //add them to their respective dictionaries
+                gainNodes[key] = modulationIndex
+                activeOscillators[key] = [carrier,modulatorFreq]
+            
+                modulatorFreq.connect(modulationIndex);
+                modulationIndex.connect(carrier.frequency)
+                
+                carrier.connect(audioCtx.destination);
+            
                 carrier.start();
                 modulatorFreq.start();
                 
