@@ -78,17 +78,14 @@ document.addEventListener("DOMContentLoaded", function(event){
                 gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
                 gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01)
 
+                console.log(activeOscillators[key])
+
                 // wait 70 milliseconds, then delete oscillator and gainNode
-                if (synthesisType==0){
-                    //additive synthesis, delete all nodes related to key
-                    for (let osc of activeOscillators[key]) {
+            
+                for (let osc of activeOscillators[key]) {
                         osc.stop(audioCtx.currentTime + 0.07);
-                    }
                 }
-                else{
-                    activeOscillators[key].stop(audioCtx.currentTime + 0.07);
-                   
-                }
+                
                 delete activeOscillators[key];
                 delete gainNodes[key];
                 
@@ -121,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function(event){
                 }
              }
             
-            console.log(activeOscillators[key])
+            // console.log(activeOscillators[key])
             
             osc_main.connect(gainNode)
             gainNode.connect(audioCtx.destination);
@@ -136,8 +133,6 @@ document.addEventListener("DOMContentLoaded", function(event){
             else{
                 osc_main.start();
             }
-
-
          
             //normalize the gain to ensure it doesn't exceed our threshold
             //attack, polyphonic mode
