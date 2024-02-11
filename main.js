@@ -52,6 +52,8 @@ document.addEventListener("DOMContentLoaded", function(event){
         //will need a new gain node for each node to control the adsr of that note
         var gainNodes = {}
 
+        var frequencyVariation = 100;
+
          //default OFF
          var synthesisType="-1";
          //detect change for synthesis type
@@ -131,36 +133,24 @@ document.addEventListener("DOMContentLoaded", function(event){
 
             //Additive Synthesis
             if (synthesisType==0){
-                //create main osc
-                var osc_main = audioCtx.createOscillator();
-                osc_main.frequency.setValueAtTime(keyboardFrequencyMap[key],audioCtx.currentTime);
-                osc_main.type = waveType;
-                activeOscillators[key] = [osc_main];
-
+                
                 //create gain node(controls volume, ADSR envelop)
                 var gainNode = audioCtx.createGain();
                 gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
                 //add gainNode to dictionary
                 gainNodes[key] = gainNode;
-
-                //create 4 partials
+                activeOscillators[key] = [];
+                //create 3 partials + main osc
                 for(var i=0;i<4;i++)
                 {
                     let osc = audioCtx.createOscillator();
-                    if (i<3){
-                        osc.frequency.value = i * keyboardFrequencyMap[key] + (Math.random()) * 15;
-                    }
-                    else{
-                        osc.frequency.value = i * keyboardFrequencyMap[key] - (Math.random()) * 15;
-                    }
-                   
+                    osc.frequency.value = (i* keyboardFrequencyMap[key]) + Math.random() * frequencyVariation;
                     osc.type = waveType;
                     osc.connect(gainNode)
                     activeOscillators[key].push(osc);
                 }
 
                 //connect to output
-                osc_main.connect(gainNode)
                 gainNode.connect(audioCtx.destination);
 
                 //start the oscillators
@@ -172,14 +162,14 @@ document.addEventListener("DOMContentLoaded", function(event){
                 var numActiveOscillators = Object.keys(activeOscillators).length * 5;
                 Object.keys(gainNodes).forEach(function(key) {
                     gainNodes[key].gain.setTargetAtTime(
-                      0.25 / numActiveOscillators,
+                      0.75 / numActiveOscillators,
                       audioCtx.currentTime,
                       0.2
                     );
                   });
                   // decay plus sustain
                   gainNode.gain.setTargetAtTime(
-                    0.15 / numActiveOscillators,
+                    0.55 / numActiveOscillators,
                     audioCtx.currentTime + 0.2,
                     0.2
                   );
