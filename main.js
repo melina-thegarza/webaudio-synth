@@ -48,9 +48,9 @@ document.addEventListener("DOMContentLoaded", function(event){
         window.addEventListener('keydown',keyDown,false);
         window.addEventListener('keyup',keyUp, false);
 
-        activeOscillators = {}
+        var activeOscillators = {}
         //will need a new gain node for each node to control the adsr of that note
-        gainNodes = {}
+        var gainNodes = {}
 
          //default additive synthesis
          var synthesisType="0";
@@ -78,26 +78,23 @@ document.addEventListener("DOMContentLoaded", function(event){
             
                 if(synthesisType==0 || synthesisType==2){
                     gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
-                    gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.1);
+                    gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01);
                 }
                 else if(synthesisType==1){
                      for(let node of gainNodes[key]){
                     node.gain.cancelScheduledValues(audioCtx.currentTime);
                     node.gain.setTargetAtTime(0,audioCtx.currentTime,0.01)
-                }
+                    }
                     
                 }
                 
                 // wait 20 milliseconds, then delete oscillator and gainNode
-                setTimeout(() => { 
-                    for (let osc of activeOscillators[key]) {
-                        osc.stop(audioCtx.currentTime + 0.02);
-                    }
-                    
-                    delete activeOscillators[key];
-                    delete gainNodes[key];
-                }, 70);
-               
+                for (let osc of activeOscillators[key]) {
+                    osc.stop(audioCtx.currentTime+0.05);
+                }
+                
+                delete activeOscillators[key];
+                delete gainNodes[key];
                 
             }
         }
@@ -119,11 +116,17 @@ document.addEventListener("DOMContentLoaded", function(event){
                 //add gainNode to dictionary
                 gainNodes[key] = gainNode;
 
-                //create 3 partials
-                for(var i=0;i<3;i++)
+                //create 4 partials
+                for(var i=0;i<4;i++)
                 {
                     let osc = audioCtx.createOscillator();
-                    osc.frequency.value = i * keyboardFrequencyMap[key] + (Math.random() - 0.5) * 30;
+                    if (i<3){
+                        osc.frequency.value = i * keyboardFrequencyMap[key] + (Math.random()) * 15;
+                    }
+                    else{
+                        osc.frequency.value = i * keyboardFrequencyMap[key] - (Math.random()) * 15;
+                    }
+                   
                     osc.type = waveType;
                     osc.connect(gainNode)
                     activeOscillators[key].push(osc);
@@ -139,13 +142,21 @@ document.addEventListener("DOMContentLoaded", function(event){
                 }
                 //normalize the gain to ensure it doesn't exceed our threshold
                  //attack, polyphonic mode
-                var numActiveOscillators = Object.keys(activeOscillators).length * 4;
-                Object.keys(gainNodes).forEach(function(key){
-                    gainNodes[key].gain.setTargetAtTime(0.25/numActiveOscillators, audioCtx.currentTime, 0.2);
-                });
+                var numActiveOscillators = Object.keys(activeOscillators).length * 5;
+                Object.keys(gainNodes).forEach(function(key) {
+                    gainNodes[key].gain.setTargetAtTime(
+                      0.25 / numActiveOscillators,
+                      audioCtx.currentTime,
+                      0.2
+                    );
+                  });
+                  // decay plus sustain
+                  gainNode.gain.setTargetAtTime(
+                    0.15 / numActiveOscillators,
+                    audioCtx.currentTime + 0.2,
+                    0.2
+                  );
     
-                //decay + sustain
-                 gainNode.gain.setTargetAtTime(0.15/numActiveOscillators, audioCtx.currentTime+0.2, 0.2);
 
             }
 
