@@ -79,32 +79,76 @@ document.addEventListener("DOMContentLoaded", function(event){
                 gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01)
 
                 // wait 70 milliseconds, then delete oscillator and gainNode
-                activeOscillators[key].stop(audioCtx.currentTime + 0.07);
+                if (synthesisType==0){
+                    //additive synthesis, delete all nodes related to key
+                    for (let osc of activeOscillators[key]) {
+                        osc.stop(audioCtx.currentTime + 0.07);
+                    }
+                }
+                else{
+                    activeOscillators[key].stop(audioCtx.currentTime + 0.07);
+                   
+                }
                 delete activeOscillators[key];
                 delete gainNodes[key];
+                
             }
         }
 
         //start the sound, start an oscillator, set the desired properties, connect the new oscillator
         function playNote(key){
             //create oscillator
-            var osc = audioCtx.createOscillator();
-            osc.frequency.setValueAtTime(keyboardFrequencyMap[key],audioCtx.currentTime);
-            osc.type = waveType;
+            var osc_main = audioCtx.createOscillator();
+            osc_main.frequency.setValueAtTime(keyboardFrequencyMap[key],audioCtx.currentTime);
+            osc_main.type = waveType;
+            activeOscillators[key] = [osc_main];
 
             //create gain node(controls volume, ADSR envelop)
             var gainNode = audioCtx.createGain();
             gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            osc.connect(gainNode).connect(audioCtx.destination);
-            osc.start();
-
-            //add oscillator and gainNode to respective dictionaries
-            activeOscillators[key] = osc;
+            //add gainNode to dictionary
             gainNodes[key] = gainNode;
+
+             //if additive synthesis, create 3 partials
+             if (synthesisType==0){
+                for(var i=0;i<3;i++)
+                {
+                    let osc = audioCtx.createOscillator();
+                    osc.frequency.value = i * keyboardFrequencyMap[key] + (Math.random() - 0.5) * 30;
+                    osc.type = waveType;
+                    osc.connect(gainNode)
+                    activeOscillators[key].push(osc);
+                }
+             }
             
+            console.log(activeOscillators[key])
+            
+            osc_main.connect(gainNode)
+            gainNode.connect(audioCtx.destination);
+           
+
+            //start the rest of the oscillators, additive synthesis
+            if (synthesisType==0){
+                for (let osc of activeOscillators[key]) {
+                    osc.start();
+                }
+            }
+            else{
+                osc_main.start();
+            }
+
+
+         
             //normalize the gain to ensure it doesn't exceed our threshold
             //attack, polyphonic mode
-            let numActiveOscillators = Object.keys(activeOscillators).length;
+            if (synthesisType!=0){
+                var numActiveOscillators = Object.keys(activeOscillators).length;
+            }
+            else{
+                var numActiveOscillators = Object.keys(activeOscillators).length * 4;
+            }
+           
+
             Object.keys(gainNodes).forEach(function(key){
                 gainNodes[key].gain.setTargetAtTime(0.25/numActiveOscillators, audioCtx.currentTime, 0.2);
             });
