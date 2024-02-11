@@ -78,10 +78,7 @@ document.addEventListener("DOMContentLoaded", function(event){
                 gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
                 gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01)
 
-                console.log(activeOscillators[key])
-
                 // wait 70 milliseconds, then delete oscillator and gainNode
-            
                 for (let osc of activeOscillators[key]) {
                         osc.stop(audioCtx.currentTime + 0.07);
                 }
@@ -117,8 +114,6 @@ document.addEventListener("DOMContentLoaded", function(event){
                     activeOscillators[key].push(osc);
                 }
              }
-            
-            // console.log(activeOscillators[key])
             
             osc_main.connect(gainNode)
             gainNode.connect(audioCtx.destination);
