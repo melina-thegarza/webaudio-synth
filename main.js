@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function(event){
             
                 if(synthesisType==0 || synthesisType==2){
                     gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
-                    gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01);
+                    gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.1);
                 }
                 else if(synthesisType==1){
                      for(let node of gainNodes[key]){
@@ -186,26 +186,38 @@ document.addEventListener("DOMContentLoaded", function(event){
             //FM synthesis
             else if(synthesisType==2){
 
+                                // Create oscillators and gain node
                 var carrier = audioCtx.createOscillator();
-                modulatorFreq = audioCtx.createOscillator();
-            
-                modulationIndex = audioCtx.createGain();
-                modulationIndex.gain.value = 100;
-                modulatorFreq.frequency.value = 100;
-                carrier.frequency.value = keyboardFrequencyMap[key];
+                var modulatorFreq = audioCtx.createOscillator();
+                var modulationIndex = audioCtx.createGain();
 
+                // Set initial value of modulation index
+                var initialModulationIndexValue = 0.5; // Set to your desired initial value
+                modulationIndex.gain.value = initialModulationIndexValue;
 
-                //add them to their respective dictionaries
-                gainNodes[key] = modulationIndex
-                activeOscillators[key] = [carrier,modulatorFreq]
-            
+                // Set initial parameters
+                modulatorFreq.frequency.value = 0; // Start modulator frequency at zero
+
+                // Add oscillators to dictionaries
+                gainNodes[key] = modulationIndex;
+                activeOscillators[key] = [carrier, modulatorFreq];
+
+                // Connect nodes
                 modulatorFreq.connect(modulationIndex);
-                modulationIndex.connect(carrier.frequency)
-                
+                modulationIndex.connect(carrier.frequency);
                 carrier.connect(audioCtx.destination);
-            
+
+                // Start oscillators
                 carrier.start();
                 modulatorFreq.start();
+
+                // Smoothly adjust modulation index with envelope shaping
+                modulationIndex.gain.setTargetAtTime(initialModulationIndexValue, audioCtx.currentTime, 0.01); // Set initial value
+                modulationIndex.gain.setTargetAtTime(0.5, audioCtx.currentTime + 0.1, 0.2); // Smoothly transition to desired value
+
+                // Smoothly adjust carrier frequency with envelope shaping
+                var targetFrequency = keyboardFrequencyMap[key];
+                carrier.frequency.setTargetAtTime(targetFrequency, audioCtx.currentTime + 0.1, 0.2); // Smoothly transition to desired frequency
                 
 
             }
