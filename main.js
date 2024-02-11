@@ -137,10 +137,8 @@ document.addEventListener("DOMContentLoaded", function(event){
                 for (let osc of activeOscillators[key]) {
                     osc.start();
                 }
-                
                 //normalize the gain to ensure it doesn't exceed our threshold
                  //attack, polyphonic mode
-
                 var numActiveOscillators = Object.keys(activeOscillators).length * 4;
                 Object.keys(gainNodes).forEach(function(key){
                     gainNodes[key].gain.setTargetAtTime(0.25/numActiveOscillators, audioCtx.currentTime, 0.2);
@@ -154,18 +152,26 @@ document.addEventListener("DOMContentLoaded", function(event){
 
             //AM Synthesis
             else if(synthesisType==1){
-
+                //create carrier and modulatror oscillators
                 var carrier = audioCtx.createOscillator();
                 var modulatorFreq = audioCtx.createOscillator();
                 carrier.type = waveType;
                 modulatorFreq.type = waveType;
                 modulatorFreq.frequency.value = 100;
                 carrier.frequency.value = keyboardFrequencyMap[key];
-            
+
+                //create gain nodes
                 var modulated = audioCtx.createGain();
                 var depth = audioCtx.createGain();
-                depth.gain.value = 0.2 
-                modulated.gain.value = .5 - depth.gain.value; 
+
+                //add them to their respectice dictionaries
+                gainNodes[key] = [modulated,depth]
+                activeOscillators[key] = [carrier,modulatorFreq]
+            
+               
+                var numActiveOscillators = Object.keys(activeOscillators).length * 2;
+                depth.gain.value = 0.2/numActiveOscillators 
+                modulated.gain.value = 0.5/numActiveOscillators - depth.gain.value; 
             
                 modulatorFreq.connect(depth).connect(modulated.gain); //.connect is additive, so with [-0.5,0.5] and 0.5, the modulated signal now has output gain at [0,1]
                 carrier.connect(modulated)
@@ -173,9 +179,7 @@ document.addEventListener("DOMContentLoaded", function(event){
                 
                 carrier.start();
                 modulatorFreq.start();
-
-                gainNodes[key] = [modulated,depth]
-                activeOscillators[key] = [carrier,modulatorFreq]
+                
 
             }
           
