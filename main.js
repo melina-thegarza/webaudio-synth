@@ -52,8 +52,8 @@ document.addEventListener("DOMContentLoaded", function(event){
         //will need a new gain node for each node to control the adsr of that note
         var gainNodes = {}
 
-         //default additive synthesis
-         var synthesisType="0";
+         //default OFF
+         var synthesisType="-1";
          //detect change for synthesis type
          document.getElementById('synthesis-type').addEventListener('change',changeSynthesis);
         function changeSynthesis(){
@@ -75,8 +75,8 @@ document.addEventListener("DOMContentLoaded", function(event){
             //if key is mapped && is active
             if(keyboardFrequencyMap[key]&& activeOscillators[key]){
                 //release
-            
-                if(synthesisType==0){
+                
+                if(synthesisType==0 || synthesisType==-1){
                     gainNodes[key].gain.cancelScheduledValues(audioCtx.currentTime);
                     gainNodes[key].gain.setTargetAtTime(0,audioCtx.currentTime,0.01);
                 }
@@ -100,6 +100,34 @@ document.addEventListener("DOMContentLoaded", function(event){
 
         //start the sound, start an oscillator, set the desired properties, connect the new oscillator
         function playNote(key){
+
+            //regular mode
+            if(synthesisType==-1){
+                //create oscillator
+                const osc = audioCtx.createOscillator();
+                osc.frequency.setValueAtTime(keyboardFrequencyMap[key],audioCtx.currentTime);
+                osc.type = waveType;
+
+                //create gain node(controls volume, ADSR envelop)
+                var gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                osc.connect(gainNode).connect(audioCtx.destination);
+                osc.start();
+
+                //add oscillator and gainNode to respective dictionaries
+                activeOscillators[key] = [osc];
+                gainNodes[key] = gainNode;
+                
+                //normalize the gain to ensure it doesn't exceed our threshold
+                //attack, polyphonic mode
+                let numActiveOscillators = Object.keys(activeOscillators).length;
+                Object.keys(gainNodes).forEach(function(key){
+                    gainNodes[key].gain.setTargetAtTime(0.75/numActiveOscillators, audioCtx.currentTime, 0.2);
+                });
+
+                //decay + sustain
+                gainNode.gain.setTargetAtTime(0.55/numActiveOscillators, audioCtx.currentTime+0.2, 0.2);
+            }
 
             //Additive Synthesis
             if (synthesisType==0){
@@ -229,8 +257,6 @@ document.addEventListener("DOMContentLoaded", function(event){
                  // Add oscillators to dictionaries
                  gainNodes[key] = [modulationIndex, gainNode];
                  activeOscillators[key] = [carrier, modulatorFreq];
-
-            
 
             }
           
