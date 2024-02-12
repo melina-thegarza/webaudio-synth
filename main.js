@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function(event){
                     lfo.type = 'sine';
                     lfo.frequency.value = 10;
                     lfoGain = audioCtx.createGain();
-                    lfoGain.gain.value = 8;
+                    lfoGain.gain.value = 25;
                     lfo.connect(lfoGain).connect(modulatorFreq.frequency);
                     lfo.start();
                 }
