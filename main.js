@@ -1,3 +1,15 @@
+let lfoFreq = 5;
+function updateLFO(val) {
+    lfoFreq = val;
+}
+let modulationFreq = 10;
+function updateModulation(val) {
+    modulationFreq = val;
+}
+let numPartials = 5;
+function updatePartials(val) {
+    numPartials = val;
+}
 document.addEventListener("DOMContentLoaded", function(event){
 
         //default wave type
@@ -23,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function(event){
                 lfoStatus = event.target.value; 
             }
         });
-       
 
         const audioCtx = new(window.AudioContext || window.webkitAudioContext());
 
@@ -63,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function(event){
         //will need a new gain node for each node to control the adsr of that note
         var gainNodes = {}
 
-        var frequencyVariation = 100;
+        var frequencyVariation = Math.floor(Math.random() * 50) + 1;
 
          //default OFF
          var synthesisType="-1";
@@ -131,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function(event){
              if (lfoStatus === "on") {
                  var lfo = audioCtx.createOscillator();
                  lfo.type = 'sine';
-                 lfo.frequency.value = 5;
+                 lfo.frequency.value = lfoFreq;
                  lfoGain = audioCtx.createGain();
                  lfoGain.gain.value = 10;
                  lfo.connect(lfoGain).connect(osc.frequency);
@@ -157,8 +168,8 @@ document.addEventListener("DOMContentLoaded", function(event){
              //add gainNode to dictionary
              gainNodes[key] = gainNode;
              activeOscillators[key] = [];
-             //create 3 partials + main osc
-             for(var i=0;i<4;i++)
+             //create partials
+             for(var i=0;i<numPartials;i++)
              {
                  let osc = audioCtx.createOscillator();
                  osc.frequency.value = (i* keyboardFrequencyMap[key]) + Math.random() * frequencyVariation;
@@ -196,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function(event){
                  for (let osc of activeOscillators[key]) {
                      var lfo = audioCtx.createOscillator();
                      lfo.type = "sine";
-                     lfo.frequency.value = 5;
+                     lfo.frequency.value = lfoFreq;
                      lfoGain = audioCtx.createGain();
                      lfoGain.gain.value = 25;
                      lfo.connect(lfoGain).connect(osc.frequency);
@@ -231,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function(event){
              if (lfoStatus === "on") {
                  var lfo = audioCtx.createOscillator();
                  lfo.type = 'sine';
-                 lfo.frequency.value = 10;
+                 lfo.frequency.value = lfoFreq;
                  lfoGain = audioCtx.createGain();
                  lfoGain.gain.value = 25;
                  lfo.connect(lfoGain).connect(modulatorFreq.frequency);
@@ -263,7 +274,7 @@ document.addEventListener("DOMContentLoaded", function(event){
             
                 // Set initial parameters
                 modulationIndex.gain.value = 100;
-                modulatorFreq.frequency.value = 5;
+                modulatorFreq.frequency.value = modulationFreq;
                 carrier.frequency.value = keyboardFrequencyMap[key];
 
 
@@ -283,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function(event){
                 if (lfoStatus === "on") {
                     var lfo = audioCtx.createOscillator();
                     lfo.type = "sine";
-                    lfo.frequency.value = 5;
+                    lfo.frequency.value = lfoFreq;
                     lfoGain = audioCtx.createGain();
                     lfoGain.gain.value = 300;
                     lfo.connect(lfoGain).connect(modulatorFreq.frequency);

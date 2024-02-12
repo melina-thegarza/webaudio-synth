@@ -3,155 +3,163 @@
 <html>
     <head>
         <title>Lab 2</title>
+        <script src="main.js"></script>
         <style>
-            body{
+            
+        
+            .container {
+                display: flex;
+                flex-direction: column; /* Arrange items vertically */
+                align-items: center; /* Center items horizontally */
+            }
+
+            .columns {
+                display: flex;
+                justify-content: center; /* Center columns horizontally */
+                width: 50%;
+                margin-bottom: 20px;
+            }
+
+            .column {
+                width: calc(50% - 10px); /* Adjust the width of each column */
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh; /* Ensure the body covers the entire viewport height */
-                margin: 0; /* Remove default margin */
-
-            }
-            canvas {
-                border: 2px solid #000;
-                display: block;
-                margin: 20px auto;
-            }
-            .mode {
-            margin: 10px;
-            margin-top: 20px;
+                align-items: center; /* Align content vertically center */
             }
 
-            label{
-                font-size: 16px;
-                font-weight: bold;
+            .canvas-container {
+                display: flex;
+                justify-content: center; /* Center the canvas horizontally */
             }
 
-            select {
-                padding: 4px;
-                font-size: 14px;
-                border-radius: 3px;
-                background-color: #000;
-                color:azure;
-                text-align: center;
+            .canvas-container canvas {
+                max-width: 800px; /* Set maximum width for responsiveness */
             }
-
             .header h3 {
                 display: inline;
                 margin: 0; 
                 font-weight: bold;
             }
-            #reaction{
-                padding-left: 5px;
-                font-weight: lighter;
-            }
-            .button-container {
+            .header h2{
                 text-align: center;
-                margin-top: 10px;
-                margin-bottom: 10px;
+            }
+            button {
+                background-color: #fff;
+                border: 2px solid #000;
+                color: #000;
+                padding: 5px 8px;
+                font-size: 14px;
+                font-family: "Arial", sans-serif;
+                cursor: pointer;
+                transition: background-color 0.3s, color 0.3s, border-color 0.3s;
             }
 
-            .button-container button {
-                display: inline-block;
-                margin: 5px; 
-                border-radius: 5px;
-                padding: 10px;
+            button:hover {
                 background-color: #000;
-                color: azure;
+                color: #fff;
             }
-            .game-settings div{
-                display: inline-block;
+            select {
+                border: 2px solid black;
+                padding: 5px 8px;
+                font-size: 14px;
+                font-family: "Arial", sans-serif;
+                cursor: pointer;
             }
-            .space{
-                padding: 10px;
+            .music-controls{
+                text-align: center;
             }
-            
     
         </style>
     </head>
 
     <body>
-        
-            <div class="header">
-                <h2>Web Audio Synth</h2>
-              
-            </div>
-            <div class="synth-control">
-                <h3 style="text-align: center;">Synth Controls</h3>
-                <div>
-                    <label for="synthesis-type">Synthesis Type:</label>
-                    <select name="synthesis-type" id="synthesis-type">
-                        <option value="-1">OFF</option>
-                        <option value="0">Additive</option>
-                        <option value="1">AM</option>
-                        <option value="2">FM</option>
-                    </select>
+        <div class="header">
+            <h2>Web Audio Synth</h2>
+        </div>
+        <div class="container">
+            <div class="columns">
+                <div class="column">
+                    <h3>Synth Controls</h3>
+                    <div>
+                        <label for="synthesis-type">Synthesis Type:</label>
+                        <select name="synthesis-type" id="synthesis-type">
+                            <option value="-1">Singular</option>
+                            <option value="0">Additive</option>
+                            <option value="1">AM</option>
+                            <option value="2">FM</option>
+                        </select>
+                    </div>
+                    <br>
+                    <div class="music-controls">
+                        <form id="lfo_selection">
+                            <span>LFO: </span>
+                            <input type="radio" id="lfo-off" value="off" name="lfo" checked="checked">
+                            <label for="off">off</label>
+                            <input type="radio" id="lfo-on" name="lfo" value="on">
+                            <label for="on">on</label>
+                        </form>
+    
+                        <label for="lfo-speed">Adjust LFO speed:</label>
+                        <input type="range" id="lfo-speed" name="lfo-speed" min="1" max="20" oninput="updateLFO(this.value)" onchange="updateLFO(this.value)">
+                        <br><br>
+                        <label for="modulation-speed">Value of modulation frequency(FM):</label>
+                        <input type="range" id="modulation-speed" name="modulation-speed" min="1" max="25" oninput="updateModulation(this.value)" onchange="updateModulation(this.value)">
+                        <br><br>
+                        <label for="number-partials">Number of partials(Additive):</label>
+                        <input type="range" id="number-partials" name="number-partials" min="3" max="50" oninput="updatePartials(this.value)" onchange="updatePartials(this.value)">
+                        <br><br>
+                        <form id="wave_selection">
+                            <span>Wave Type: </span>
+                            <input type="radio" id="sine" value="sine" name="wave" checked="checked">
+                            <label for="sine">sine</label>
+                            <input type="radio" id="sawtooth" name="wave" value="sawtooth">
+                            <label for="sawtooth">sawtooth</label>
+                        </form>
+                    </div>
                 </div>
-
-                <div>
-                   
-
-                    <form id="lfo_selection">
-                        <span>LFO: </span>
-                        <input type="radio" id="lfo-off" value="off" name="lfo" checked="checked">
-                        <label for="off">off</label>
-                        <input type="radio" id="lfo-on" name="lfo" value="on">
-                        <label for="on">on</label>
-                    </form>
-
-                    <form id="wave_selection">
-                        <span>Wave Type: </span>
-                        <input type="radio" id="sine" value="sine" name="wave" checked="checked">
-                        <label for="sine">sine</label>
-                        <input type="radio" id="sawtooth" name="wave" value="sawtooth">
-                        <label for="sawtooth">sawtooth</label>
-                    </form>
+                <div class="column">
+                    <h3>Game Controls</h3>
+                    <div class="header">
+                        <h3>Score:</h3>
+                        <h3 id="gameScore">0</h3>
+                        <h3 id="reaction"></h3>
+                    </div>
+                    <br>
+                    <div>
+                        <label for="song">Select Song:</label>
+                        <select name="song" id="song">
+                            <option value="0">Happy Birthday!</option>
+                            <option value="1">Mary Had a Little Lamb</option>
+                        </select>
+                    </div>
+                    <br>
+                    <div class="mode">
+                        <label for="mode">Game Mode:</label>
+                        <select name="mode" id="mode">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <br>
+                    <div class="button-container">
+                        <button id="startStopButton">Start Game</button>
+                        <button id="restartButton">Restart Game</button>
+                    </div>
                 </div>
-                
             </div>
-
-            <div class="space"></div>
-
-            <div class="header">
-                <h3>Score: </h3><h3 id="gameScore">0</h3> <h3 id="reaction"></h3>
+    
+           
+    
+            <div class="canvas-container">
+                <canvas id="gameCanvas" width="800" height="400"></canvas>
             </div>
-            
-            <div class="game-settings">
-
-                <div>
-                    <label for="mode">Select Song:</label>
-                    <select name="song" id="song">
-                    <option value="0">Mary Had a Little Lamb</option>
-                    <option value="1">Happy Birthday!</option>
-                    
-                    </select>
-                </div>
-                <div class="mode">
-                    <label for="mode">Game Mode:</label>
-                    <select name="mode" id="mode">
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                    </select>
-                </div>
-
-            </div>
-            
-            
-            <div class="button-container">
-                <button id="startStopButton">Start Game</button>
-                 <button id="restartButton">Restart Game</button>
-            </div>
-
-            
-            
-   
-            <canvas id="gameCanvas" width="800" height="400"></canvas>
-            <script src="game.js"></script>
-            
+        </div>
+    
+        <script src="game.js"></script>
     </body>
+    
 
-    <script src="main.js"></script>
+   
 
 </html>

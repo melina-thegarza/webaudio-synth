@@ -70,15 +70,16 @@ let isAnimating = false;
 
 //ADD MORE SONGS, 2 more, increasing in difficulty
 //Mary had a Little Lamb + Happy Birthday
-let song = [['C', 'X', 'Z', 'X', 'C', 'C', 'C',
-     'X', 'X', 'X', 'C', 'C', 'C',
-    'C', 'X', 'Z', 'X', 'C', 'C', 'C',
-    'C', 'X', 'X', 'C', 'X', 'Z'], 
-
+let song = [
     ['B', 'B', 'N', 'B', 'Q', 'M',
     'B', 'B', 'N', 'B', 'W', 'Q',
     'B', 'B', 'T', 'E', 'Q', 'M', 'N', 
-    'R', 'R', 'E', 'Q', 'W', 'Q']];
+    'R', 'R', 'E', 'Q', 'W', 'Q'],
+    
+    ['C', 'X', 'Z', 'X', 'C', 'C', 'C',
+    'X', 'X', 'X', 'C', 'C', 'C',
+   'C', 'X', 'Z', 'X', 'C', 'C', 'C',
+   'C', 'X', 'X', 'C', 'X', 'Z']];
 let songOption = 0;
 let songIndex = 0;
 let widthMax = 720;
