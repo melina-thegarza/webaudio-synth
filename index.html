@@ -63,6 +63,9 @@
             .game-settings div{
                 display: inline-block;
             }
+            .space{
+                padding: 10px;
+            }
             
     
         </style>
@@ -74,6 +77,41 @@
                 <h2>Web Audio Synth</h2>
               
             </div>
+            <div class="synth-control">
+                <h3 style="text-align: center;">Synth Controls</h3>
+                <div>
+                    <label for="synthesis-type">Synthesis Type:</label>
+                    <select name="synthesis-type" id="synthesis-type">
+                        <option value="-1">OFF</option>
+                        <option value="0">Additive</option>
+                        <option value="1">AM</option>
+                        <option value="2">FM</option>
+                    </select>
+                </div>
+
+                <div>
+                   
+
+                    <form id="lfo_selection">
+                        <span>LFO: </span>
+                        <input type="radio" id="lfo-off" value="off" name="lfo" checked="checked">
+                        <label for="off">off</label>
+                        <input type="radio" id="lfo-on" name="lfo" value="on">
+                        <label for="on">on</label>
+                    </form>
+
+                    <form id="wave_selection">
+                        <span>Wave Type: </span>
+                        <input type="radio" id="sine" value="sine" name="wave" checked="checked">
+                        <label for="sine">sine</label>
+                        <input type="radio" id="sawtooth" name="wave" value="sawtooth">
+                        <label for="sawtooth">sawtooth</label>
+                    </form>
+                </div>
+                
+            </div>
+
+            <div class="space"></div>
 
             <div class="header">
                 <h3>Score: </h3><h3 id="gameScore">0</h3> <h3 id="reaction"></h3>
@@ -111,28 +149,7 @@
    
             <canvas id="gameCanvas" width="800" height="400"></canvas>
             <script src="game.js"></script>
-            <div>
-                <form id="wave_selection">
-                    <input type="radio" id="sine" value="sine" name="wave" checked="checked">
-                    <label for="sine">sine</label>
-                    <input type="radio" id="sawtooth" name="wave" value="sawtooth">
-                    <label for="sawtooth">sawtooth</label>
-                </form>
-            </div>
-
-            <div class="synth-control">
-                <h2 style="text-align: center;">Synth Controls</h2>
-                <div>
-                    <label for="synthesis-type">Synthesis Type:</label>
-                    <select name="synthesis-type" id="synthesis-type">
-                        <option value="-1">OFF</option>
-                        <option value="0">Additive Synthesis</option>
-                        <option value="1">AM Synthesis</option>
-                        <option value="2">FM Synthesis</option>
-                    </select>
-                </div>
-                
-            </div>
+            
     </body>
 
     <script src="main.js"></script>
