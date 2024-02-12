@@ -68,6 +68,67 @@
             .music-controls{
                 text-align: center;
             }
+            .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px; /* Adjust width */
+            height: 20px; /* Adjust height */
+            }
+
+            .switch input {
+            display: none;
+            }
+
+            .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 10px; /* Make it round */
+            -webkit-transition: .4s;
+            transition: .4s;
+            }
+
+            .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; /* Adjust size */
+            width: 16px; /* Adjust size */
+            border-radius: 50%; /* Make it round */
+            left: 2px; /* Adjust position */
+            bottom: 2px; /* Adjust position */
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            }
+
+            input:checked + .slider {
+            background-color: #0759b1;
+            }
+
+            input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+            }
+
+            input:checked + .slider:before {
+            -webkit-transform: translateX(20px); /* Adjust movement */
+            -ms-transform: translateX(20px); /* Adjust movement */
+            transform: translateX(20px); /* Adjust movement */
+            }
+
+            .switch-container {
+            display: flex;
+            align-items: center;
+            }
+
+            .switch-container label {
+            margin-right: 10px; /* Adjust spacing between label and switch */
+            }
+  
+            
     
         </style>
     </head>
@@ -81,27 +142,38 @@
                 <div class="column">
                     <h3>Synth Controls</h3>
                     <div>
-                        <label for="synthesis-type">Synthesis Type:</label>
+                        <!-- <label for="synthesis-type">Synthesis Type:</label>
                         <select name="synthesis-type" id="synthesis-type">
                             <option value="-1">Singular</option>
                             <option value="0">Additive</option>
                             <option value="1">AM</option>
                             <option value="2">FM</option>
-                        </select>
+                        </select> -->
+                        <form id="synthesis_selection">
+                            <span>Synthesis Type: </span>
+                            <input type="radio" id="regular" value="-1" name="synthesis-type" checked="checked">
+                            <label for="regular">Regular</label>
+                            <input type="radio" id="additive" value="0" name="synthesis-type">
+                            <label for="additive">Additive</label>
+                            <input type="radio" id="am" value="1" name="synthesis-type">
+                            <label for="am">AM</label>
+                            <input type="radio" id="fm" value="2" name="synthesis-type">
+                            <label for="fm">FM</label>
+                        </form>
                     </div>
                     <br>
                     <div class="music-controls">
-                        <form id="lfo_selection">
-                            <span>LFO: </span>
-                            <input type="radio" id="lfo-off" value="off" name="lfo" checked="checked">
-                            <label for="off">off</label>
-                            <input type="radio" id="lfo-on" name="lfo" value="on">
-                            <label for="on">on</label>
-                        </form>
-    
-                        <label for="lfo-speed">Adjust LFO speed:</label>
-                        <input type="range" id="lfo-speed" name="lfo-speed" min="1" max="20" oninput="updateLFO(this.value)" onchange="updateLFO(this.value)">
-                        <br><br>
+                       
+                        <div class="switch-container">
+                            <label for="lfo_selection">LFO</label>
+                            <label class="switch">
+                              <input type="checkbox" id="lfo_selection">
+                              <span class="slider"></span>
+                            </label>
+                            <label for="lfo-speed">Adjust LFO speed:</label>
+                            <input type="range" id="lfo-speed" name="lfo-speed" min="1" max="20" oninput="updateLFO(this.value)" onchange="updateLFO(this.value)">
+                        </div>
+                        <br>
                         <label for="modulation-speed">Value of modulation frequency(FM):</label>
                         <input type="range" id="modulation-speed" name="modulation-speed" min="1" max="25" oninput="updateModulation(this.value)" onchange="updateModulation(this.value)">
                         <br><br>

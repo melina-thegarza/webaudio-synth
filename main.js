@@ -27,12 +27,14 @@ document.addEventListener("DOMContentLoaded", function(event){
         //default wave type
         var lfoStatus="off";
         //detect change for wave type
-        var lfoForm = document.getElementById('lfo_selection');
+        var lfoToggle = document.getElementById('lfo_selection');
         // Add event listener to the form
-        lfoForm.addEventListener('change', function (event) {
-            if (event.target.type === 'radio') {
-                // set the new wave type
-                lfoStatus = event.target.value; 
+        lfoToggle.addEventListener('change', function (event) {
+            if(this.checked){
+                lfoStatus = "on";
+            }
+            else{
+                lfoStatus = "off";
             }
         });
 
@@ -75,16 +77,18 @@ document.addEventListener("DOMContentLoaded", function(event){
         var gainNodes = {}
 
         var frequencyVariation = Math.floor(Math.random() * 50) + 1;
-
-         //default OFF
+        
+         //default regular
          var synthesisType="-1";
-         //detect change for synthesis type
-        document.getElementById('synthesis-type').addEventListener('change',changeSynthesis);
-        function changeSynthesis(){
-            //update the synthesis type
-            synthesisType = document.getElementById('synthesis-type').value;
-            
-        }
+        //detect change
+        var synthesisForm = document.getElementById('synthesis_selection');
+        // Add event listener to the form
+        synthesisForm.addEventListener('change', function (event) {
+            if (event.target.type === 'radio') {
+                // set the new wave type
+                synthesisType = event.target.value; 
+            }
+        });
 
         function keyDown(event){
             const key = (event.detail || event.which).toString();
